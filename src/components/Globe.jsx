@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import * as d3 from 'd3';
+// import * as d3 from 'd3'; // Removed general D3 import
+import { json } from 'd3-fetch'; // Added specific import
+import { geoOrthographic, geoPath } from 'd3-geo'; // Added specific imports
 import * as topojson from 'topojson-client';
 
 // Path to your local TopoJSON file
-const TOPO_JSON_PATH = '/src/assets/topo.json'; 
+const TOPO_JSON_PATH = '/topo.json';
 
 const Globe = ({ size = 400, rotationSpeed = 0.3 }) => {
   console.log('[Globe] Props:', { size, rotationSpeed });
@@ -17,7 +19,7 @@ const Globe = ({ size = 400, rotationSpeed = 0.3 }) => {
     console.log(`[Globe] Fetching TopoJSON data from ${TOPO_JSON_PATH}...`);
     setIsLoading(true);
     setError(null);
-    d3.json(TOPO_JSON_PATH).then(data => {
+    json(TOPO_JSON_PATH).then(data => {
       console.log('[Globe] TopoJSON data fetched:', data);
       if (data && data.objects && data.objects.ne_110m_admin_0_countries) {
         console.log('[Globe] Converting TopoJSON to GeoJSON...');
@@ -57,10 +59,10 @@ const Globe = ({ size = 400, rotationSpeed = 0.3 }) => {
 
   let pathString = '';
   if (geoData && !isLoading && !error) {
-    const projection = d3.geoOrthographic()
+    const projection = geoOrthographic()
       .fitSize([size, size], geoData)
       .rotate([rotation, 0, 0]);
-    const pathGenerator = d3.geoPath().projection(projection);
+    const pathGenerator = geoPath().projection(projection);
     pathString = pathGenerator(geoData);
     console.log('[Globe] Path string generated. Length:', pathString.length);
   }
